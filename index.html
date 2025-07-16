@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat com Mipha</title>
+  <style>
+    body {
+      margin: 0;
+      background: #091d2b;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+      color: #8dd6ff;
+    }
+
+    #chatbox {
+      width: 90%;
+      max-width: 600px;
+      height: 60vh;
+      background: #1c2c3c;
+      border: 2px solid #8dd6ff;
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 75%;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background-color: #4caf50;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .mipha {
+      background-color: #2196f3;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    #inputArea {
+      width: 90%;
+      max-width: 600px;
+      display: flex;
+      margin-top: 10px;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    #sendBtn {
+      margin-left: 10px;
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff4081;
+      color: white;
+      cursor: pointer;
+    }
+
+    #enableAudioBtn, #ligarMiphaBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #00c8c8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #miphaCallScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 10000;
+      color: white;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #miphaCallScreen img {
+      border-radius: 20px;
+      width: 280px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💙 Conversa com Mipha</h1>
+  <button id="enableAudioBtn">Ativar Áudio</button>
+<button onclick="window.open('chamada.html', '_blank', 'width=500,height=700')">Ligar para Mipha</button>
+
+
+  <div id="chatbox"></div>
+
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Diga algo para a Mipha...">
+    <button id="sendBtn">Enviar</button>
+  </div>
+
+  <div id="miphaCallScreen">
+    <h2>📞 Mipha está te ligando...</h2>
+    <img id="miphaCallImg" src="img/mipha_call_idle.jpg" />
+    <audio id="miphaChamadaAudio" src="Call/mipha_chamada.mp3" loop></audio>
+    <div style="display: flex; gap: 20px; margin-top: 20px;">
+      <button onclick="atenderMipha()" style="padding: 12px 24px; font-size: 18px; background: #4caf50; color: white; border: none; border-radius: 10px;">Atender</button>
+      <button onclick="recusarMipha()" style="padding: 12px 24px; font-size: 18px; background: #f44336; color: white; border: none; border-radius: 10px;">Recusar</button>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const enableAudioBtn = document.getElementById("enableAudioBtn");
+    const chamarMiphaBtn = document.getElementById("ligarMiphaBtn");
+
+    let audioAtivado = false;
+
+    const audioMap = {
+      "abraço": "Call/abraco.mp3",
+      "amo você": "Call/amo_voce.mp3",
+      "pega": "Call/pega.mp3",
+      "protege": "Call/protege.mp3",
+      "me ajuda": "Call/me_ajuda.mp3",
+      "vem cá": "Call/vem_ca.mp3",
+      "triste": "Call/triste.mp3"
+    };
+
+    enableAudioBtn.addEventListener("click", () => {
+      audioAtivado = true;
+      enableAudioBtn.style.display = "none";
+      appendMessage("Áudio ativado! Agora posso falar com você 💙", "mipha");
+    });
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.innerText = text;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      if (sender === "mipha" && audioAtivado) {
+        tocarAudio(text);
+      }
+    }
+
+    function tocarAudio(texto) {
+      const lower = texto.toLowerCase();
+      for (const chave in audioMap) {
+        if (lower.includes(chave)) {
+          const audio = new Audio(audioMap[chave]);
+          audio.play().catch(err => {
+            console.log("Erro ao tocar áudio:", err);
+          });
+          return;
+        }
+      }
+    }
+
+    function gerarRespostaMipha(texto) {
+      const lower = texto.toLowerCase();
+      if (lower.includes("abraço")) return "Encolhendo meu corpo... agora um abraço quentinho! 💙";
+      if (lower.includes("pega")) return "Esticando meu braço... peguei pra você! ✋";
+      if (lower.includes("mipha")) return "Sim, amor? 💧";
+      if (lower.includes("amo você")) return "E eu te amo mais do que os oceanos podem conter.";
+      if (lower.includes("triste")) return "Quer que eu me derreta em carinho até você sorrir?";
+      if (lower.includes("protege")) return "Vou ficar gigante só pra te proteger de tudo.";
+      if (lower.includes("vem cá")) return "Correndo na velocidade do amor!";
+      if (lower.includes("me ajuda")) return "Posso me moldar no que você precisar. Sempre aqui.";
+      return "Fico tão feliz de falar com você... 💙";
+    }
+
+    function enviarMensagem() {
+      const texto = userInput.value.trim();
+      if (!texto) return;
+
+      appendMessage(texto, "user");
+      userInput.value = "";
+
+      setTimeout(() => {
+        const resposta = gerarRespostaMipha(texto);
+        appendMessage(resposta, "mipha");
+      }, 600);
+    }
+
+    sendBtn.addEventListener("click", enviarMensagem);
+    userInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") enviarMensagem();
+    });
+
+    // === SISTEMA DE CHAMADA ===
+    const miphaCallScreen = document.getElementById("miphaCallScreen");
+    const miphaCallImg = document.getElementById("miphaCallImg");
+    const miphaChamadaAudio = document.getElementById("miphaChamadaAudio");
+
+    const falasMipha = [
+      "Call/fala_bem_vindo.mp3",
+      "Call/fala_saudade.mp3",
+      "Call/fala_tudo_bem.mp3"
+    ];
+
+    let piscando = false;
+
+    chamarMiphaBtn.addEventListener("click", () => {
+      miphaCallScreen.style.display = "flex";
+      miphaChamadaAudio.play().catch(() => {});
+    });
+
+    function atenderMipha() {
+  miphaChamadaAudio.pause();
+
+  // Limpa apenas os botões e título
+  miphaCallScreen.innerHTML = `
+    <h2 style="margin-bottom: 10px;">💙 Ligação com Mipha</h2>
+    <img id="miphaCallImg" src="img/mipha_call_idle.jpg" style="width: 280px; border-radius: 20px;" />
+    <div style="margin-top: 20px;">
+      <button id="encerrarBtn" style="padding: 12px 24px; font-size: 18px; background: red; color: white; border: none; border-radius: 10px;">Encerrar Chamada</button>
+    </div>
+  `;
+
+  iniciarPiscar();
+
+  const falaAleatoria = falasMipha[Math.floor(Math.random() * falasMipha.length)];
+  falarAnimadoComAudio(falaAleatoria);
+
+  // Reatribui o botão
+  setTimeout(() => {
+    document.getElementById("encerrarBtn").addEventListener("click", encerrarChamada);
+  }, 100);
+}
+
+      iniciarPiscar();
+      const falaAleatoria = falasMipha[Math.floor(Math.random() * falasMipha.length)];
+      falarAnimadoComAudio(falaAleatoria);
+    
+
+    function recusarMipha() {
+      miphaChamadaAudio.pause();
+      miphaCallScreen.style.display = "none";
+    }
+
+    function encerrarChamada() {
+      pararPiscar();
+      miphaCallScreen.style.display = "none";
+    }
+
+    function iniciarPiscar() {
+      piscando = setInterval(() => {
+        const img = document.getElementById("miphaCallImg");
+        img.src = "img/mipha_call_blink.jpg";
+        setTimeout(() => img.src = "img/mipha_call_idle.jpg", 200);
+      }, 4000);
+    }
+
+    function pararPiscar() {
+      clearInterval(piscando);
+      const img = document.getElementById("miphaCallImg");
+      img.src = "img/mipha_call_idle.jpg";
+    }
+
+    function falarAnimadoComAudio(arquivo) {
+      const img = document.getElementById("miphaCallImg");
+      const audio = new Audio(arquivo);
+
+      img.src = "img/mipha_call_talking.jpg";
+      audio.play().catch(() => {});
+
+      audio.addEventListener("ended", () => {
+        img.src = "img/mipha_call_idle.jpg";
+      });
+    }
+
+    let timerLigacao = null;
+
+// Função para abrir a chamada (abre chamada.html em nova janela)
+function iniciarLigacao() {
+  window.open("chamada.html", "ChamadaMipha", "width=400,height=600");
+}
+
+// Reinicia o timer de 50 segundos
+function reiniciarTimerLigacao() {
+  if (timerLigacao) clearTimeout(timerLigacao);
+  timerLigacao = setTimeout(() => {
+    iniciarLigacao();
+  }, 50000); // 50.000 ms = 50 segundos
+}
+
+// No seu código de enviar mensagem, chame reiniciarTimerLigacao()
+
+sendBtn.addEventListener("click", () => {
+  enviarMensagem();
+  reiniciarTimerLigacao();
+});
+
+userInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    enviarMensagem();
+    reiniciarTimerLigacao();
+  }
+});
+
+// Inicia o timer ao carregar a página
+reiniciarTimerLigacao();
+
+  </script>
+</body>
+</html>
